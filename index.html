@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reto de Ahorro · 30 Días</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Caveat:wght@500;700&family=Courier+Prime:wght@400;700&display=swap');
+
+  :root{
+    --paper: #ede3cd;
+    --ink: #3a2f22;
+    --ink-soft: #6b5c46;
+    --pistachio: #cfe0c3;
+    --pistachio-dark: #a9c494;
+    --pistachio-text: #3d4a32;
+    --line: #b9a888;
+    --card: #f3ead6;
+    --shadow: rgba(58,47,34,0.18);
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html{ scroll-padding-top: env(safe-area-inset-top, 0px); height:100%; }
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0; min-height:100%;
+    font-family: 'Courier Prime', monospace;
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image:
+      radial-gradient(ellipse at top left, rgba(255,255,255,0.25), transparent 60%),
+      radial-gradient(ellipse at bottom right, rgba(0,0,0,0.06), transparent 55%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.015) 0px, rgba(0,0,0,0.015) 1px, transparent 1px, transparent 3px);
+    background-attachment: fixed;
+  }
+  body::before{
+    content:""; position: fixed; inset:0; pointer-events:none;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(139,110,60,0.10), transparent 25%),
+      radial-gradient(circle at 85% 75%, rgba(139,110,60,0.12), transparent 30%),
+      radial-gradient(circle at 50% 100%, rgba(0,0,0,0.10), transparent 40%);
+    mix-blend-mode: multiply;
+  }
+
+  .wrap{ position: relative; max-width: 620px; margin: 0 auto; padding: 40px 20px 70px; }
+
+  header{ text-align:center; margin-bottom: 30px; }
+  .eyebrow-free-label{ font-family:'Playfair Display', serif; font-style:italic; color:var(--ink-soft); font-size:0.95rem; margin:0 0 6px; }
+  h1{
+    font-family:'Playfair Display', serif; font-weight:700;
+    font-size: clamp(2rem, 7vw, 2.8rem); margin:0; letter-spacing:0.5px;
+    border-bottom: 3px double var(--line); display:inline-block; padding-bottom:10px;
+  }
+  .tagline{ font-family:'Caveat', cursive; font-size:1.3rem; color:var(--ink-soft); margin:10px 0 0; }
+
+  .setup-card{
+    background: var(--card); border:1px solid var(--line);
+    box-shadow: 0 6px 0 -2px var(--shadow), 0 8px 20px var(--shadow);
+    border-radius: 2px; padding: 26px; max-width: 440px; margin: 0 auto;
+  }
+  label{ display:block; font-size:0.85rem; color:var(--ink-soft); margin-bottom:6px; }
+  input[type="number"]{
+    width:100%; font-family:'Courier Prime', monospace; font-size:1.05rem;
+    padding: 10px 12px; background:#fbf6e9; border:1px solid var(--line); border-radius:2px; color:var(--ink);
+  }
+  input[type="number"]:focus{ outline:2px solid var(--pistachio-dark); outline-offset:1px; }
+  .amount-chips{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+  .chip-btn{
+    padding:7px 12px; font-family:'Courier Prime', monospace; font-size:0.82rem;
+    background:#fbf6e9; border:1px solid var(--line); border-radius:14px; cursor:pointer; color:var(--ink-soft);
+  }
+  .chip-btn:hover{ background:#eef3e8; }
+  .chip-btn.selected{ background:var(--pistachio); border-color:var(--pistachio-dark); color:var(--pistachio-text); font-weight:700; }
+  .mode-toggle{ display:flex; gap:8px; margin-top:6px; }
+  .mode-btn{
+    flex:1; padding:9px 10px; font-family:'Courier Prime', monospace; font-size:0.85rem;
+    background:#fbf6e9; border:1px solid var(--line); border-radius:2px; cursor:pointer; color:var(--ink-soft);
+  }
+  .mode-btn[aria-pressed="true"]{ background:var(--pistachio); border-color:var(--pistachio-dark); color:var(--pistachio-text); font-weight:700; }
+  button.primary{
+    display:block; width:100%; margin-top:20px; padding:13px 16px;
+    font-family:'Courier Prime', monospace; font-weight:700; font-size:1rem;
+    color:var(--pistachio-text); background:var(--pistachio); border:1px solid var(--pistachio-dark);
+    border-radius:3px; box-shadow: 0 3px 0 var(--pistachio-dark); cursor:pointer;
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+  }
+  button.primary:hover{ background:#d8e6cd; }
+  button.primary:active{ transform: translateY(2px); box-shadow: 0 1px 0 var(--pistachio-dark); }
+  button.primary:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; }
+
+  /* stats strip */
+  .stats-strip{
+    display:flex; justify-content:space-between; gap:10px;
+    background: var(--card); border:1px solid var(--line); border-radius:2px;
+    padding: 16px 18px; margin-bottom: 14px;
+  }
+  .stat{ text-align:center; flex:1; }
+  .stat .num{ font-family:'Playfair Display', serif; font-weight:700; font-size:1.3rem; display:block; }
+  .stat .lbl{ font-size:0.68rem; color:var(--ink-soft); }
+  .progress-track{ height:9px; background:#d9cbab; border:1px solid var(--line); border-radius:6px; overflow:hidden; margin: 2px 0 20px; }
+  .progress-fill{ height:100%; background: linear-gradient(90deg, var(--pistachio-dark), var(--pistachio)); width:0%; transition: width 0.4s ease; }
+
+  /* badges strip, like stamps */
+  .badges-strip{ display:flex; justify-content:center; gap:14px; margin-bottom: 36px; }
+  .badge{
+    text-align:center; opacity:0.4; transition: opacity 0.3s ease, transform 0.3s ease;
+    border: 2px dotted var(--line); border-radius: 50%; width:56px; height:56px;
+    display:flex; align-items:center; justify-content:center; flex-direction:column;
+  }
+  .badge.earned{ opacity:1; border-style:solid; border-color:var(--pistachio-dark); background:var(--card); transform: scale(1.08); }
+  .badge .badge-icon{ font-size:1.25rem; }
+
+  /* winding trail */
+  .trail{ position:relative; padding: 10px 0 10px; }
+  .trail::before{
+    content:""; position:absolute; left:50%; top:0; bottom:0; width:2px; transform: translateX(-50%);
+    background: repeating-linear-gradient(0deg, var(--line) 0 8px, transparent 8px 16px);
+    z-index:0;
+  }
+  .decade-marker{
+    position:relative; z-index:1; text-align:center; margin: 26px 0 16px;
+  }
+  .decade-marker span{
+    font-family:'Caveat', cursive; font-size:1.3rem; color:var(--ink-soft);
+    background: var(--paper); padding: 0 14px;
+  }
+  .trail-row{
+    position:relative; z-index:1; display:flex; margin-bottom: 14px;
+  }
+  .trail-row.left{ justify-content:flex-start; }
+  .trail-row.right{ justify-content:flex-end; }
+  .stop{
+    width: 46%; max-width: 230px; display:flex; align-items:center; gap:10px;
+  }
+  .trail-row.right .stop{ flex-direction: row-reverse; text-align:right; }
+  .stop-card{
+    background: var(--card); border:1px solid var(--line); border-radius:3px;
+    padding: 8px 10px; flex:1; font-size:0.78rem;
+  }
+  .stop-card.done{ border-color: var(--pistachio-dark); background:#eef3e8; }
+  .stop-card .day-num{ font-family:'Playfair Display', serif; font-weight:700; font-size:0.9rem; display:block; }
+  .stop-card .day-amt{ color:var(--ink-soft); }
+  .check-btn{
+    width:36px; height:36px; border-radius:50%; border:2px solid var(--pistachio-dark);
+    background:#fbf6e9; cursor:pointer; color:var(--pistachio-text); font-size:1rem; line-height:1; flex-shrink:0;
+    transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), background 0.2s ease;
+  }
+  .check-btn:hover{ background:#eef3e8; transform: scale(1.06); }
+  .stop-card.done ~ .check-btn, .check-btn.is-done{ background: var(--pistachio); }
+  .check-btn.stamped{ animation: stampPop 0.4s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes stampPop{
+    0%{ transform: scale(0.5) rotate(-15deg); }
+    60%{ transform: scale(1.25) rotate(4deg); }
+    100%{ transform: scale(1) rotate(0deg); }
+  }
+  .check-btn:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; }
+  .trail-row.milestone .stop-card{ border-width:2px; }
+  .trail-row.milestone .check-btn{ width:42px; height:42px; font-size:1.2rem; }
+
+  @media (max-width: 480px){
+    .stop{ width: 70%; max-width:none; }
+  }
+
+  .reset-row{ text-align:center; margin-top: 30px; }
+  .reset-link{
+    background:none; border:none; color:var(--ink-soft); text-decoration:underline;
+    font-family:'Courier Prime', monospace; font-size:0.8rem; cursor:pointer;
+  }
+
+  .toast{
+    position: fixed; left:50%; bottom:28px; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: var(--paper); padding:10px 18px; border-radius:20px;
+    font-family:'Courier Prime', monospace; font-size:0.85rem; opacity:0; pointer-events:none;
+    transition: opacity 0.3s ease, transform 0.3s ease; z-index:50; box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  }
+  .toast.show{ opacity:1; transform: translateX(-50%) translateY(0); }
+
+  .celebration{
+    position: fixed; inset:0; background: rgba(58,47,34,0.55);
+    display:flex; align-items:center; justify-content:center; z-index:100; padding:20px;
+  }
+  .celebration-card{
+    background: var(--card); border:1px solid var(--line); border-radius:3px; padding:36px 28px;
+    max-width:420px; text-align:center; position:relative; overflow:hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+  }
+  .celebration-card h2{ font-family:'Playfair Display', serif; font-size:1.7rem; margin:10px 0 8px; }
+  .celebration-card p{ color:var(--ink-soft); font-size:0.9rem; margin:0 0 14px; }
+  .celebration-seal{ font-size:3rem; display:inline-block; animation: sealSpin 0.6s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes sealSpin{
+    0%{ transform: scale(0) rotate(-40deg); }
+    70%{ transform: scale(1.15) rotate(8deg); }
+    100%{ transform: scale(1) rotate(0deg); }
+  }
+  .confetti-piece{ position:absolute; top:-10px; width:8px; height:14px; opacity:0.9; animation: confettiFall linear forwards; }
+  @keyframes confettiFall{ to{ transform: translateY(420px) rotate(360deg); opacity:0; } }
+
+  .hidden{ display:none !important; }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#2a241c; --ink:#ece3d0; --ink-soft:#b8ab8e; --card:#332c21;
+      --pistachio:#9db98a; --pistachio-dark:#7fa068; --pistachio-text:#16210f; --line:#574c38; --shadow: rgba(0,0,0,0.45);
+    }
+    body{ background-color: var(--paper); }
+    input[type="number"], .mode-btn, .check-btn, .chip-btn{ background:#241f18; color:var(--ink); }
+    .decade-marker span{ background: var(--paper); }
+  }
+  :root[data-theme="dark"]{
+    --paper:#2a241c; --ink:#ece3d0; --ink-soft:#b8ab8e; --card:#332c21;
+    --pistachio:#9db98a; --pistachio-dark:#7fa068; --pistachio-text:#16210f; --line:#574c38; --shadow: rgba(0,0,0,0.45);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow-free-label">un cuaderno de ahorro</p>
+    <h1>Reto de 30 Días</h1>
+    <p class="tagline">pequeños ahorros, grandes logros</p>
+  </header>
+
+  <section class="setup-card" id="setupCard">
+    <div class="field">
+      <label for="goalInput">Meta total de ahorro</label>
+      <input type="number" id="goalInput" min="1" placeholder="Ej: 150000" inputmode="decimal">
+      <div class="amount-chips" id="amountChips">
+        <button type="button" class="chip-btn" data-amount="30000">$30.000</button>
+        <button type="button" class="chip-btn" data-amount="50000">$50.000</button>
+        <button type="button" class="chip-btn" data-amount="100000">$100.000</button>
+        <button type="button" class="chip-btn" data-amount="150000">$150.000</button>
+        <button type="button" class="chip-btn" data-amount="300000">$300.000</button>
+        <button type="button" class="chip-btn" data-amount="500000">$500.000</button>
+      </div>
+    </div>
+    <label style="margin-top:16px;">Forma de repartir el ahorro</label>
+    <div class="mode-toggle" role="group" aria-label="Forma de repartir el ahorro">
+      <button type="button" class="mode-btn" id="modeFixed" aria-pressed="true">Monto fijo cada día</button>
+      <button type="button" class="mode-btn" id="modeIncrement" aria-pressed="false">Un poco más cada día</button>
+    </div>
+    <button class="primary" id="startBtn">Armar mi camino</button>
+  </section>
+
+  <section id="appArea" class="hidden">
+    <div class="stats-strip">
+      <div class="stat"><span class="num" id="savedNum">0</span><span class="lbl">ahorrado</span></div>
+      <div class="stat"><span class="num" id="goalNum">0</span><span class="lbl">meta</span></div>
+      <div class="stat"><span class="num" id="daysNum">0/30</span><span class="lbl">días</span></div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+    <div class="badges-strip" id="badgesRow"></div>
+
+    <div class="trail" id="trail"></div>
+
+    <div class="reset-row">
+      <button class="reset-link" id="resetBtn">Empezar un reto nuevo</button>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="celebration hidden" id="celebration" role="dialog" aria-modal="true" aria-label="Reto completado">
+  <div class="celebration-card" id="celebrationCard">
+    <span class="celebration-seal">🏆</span>
+    <h2>¡Completaste el reto!</h2>
+    <p id="celebrationText">30 de 30 días cumplidos. Lograste ahorrar tu meta completa.</p>
+    <p class="tagline" style="margin-bottom:20px;">lo lograste, felicitaciones</p>
+    <button class="primary" id="celebrationClose">Cerrar</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'reto-ahorro-30-dias-v1';
+
+  const setupCard = document.getElementById('setupCard');
+  const appArea = document.getElementById('appArea');
+  const goalInput = document.getElementById('goalInput');
+  const modeFixed = document.getElementById('modeFixed');
+  const modeIncrement = document.getElementById('modeIncrement');
+  const startBtn = document.getElementById('startBtn');
+  const trail = document.getElementById('trail');
+  const savedNum = document.getElementById('savedNum');
+  const goalNum = document.getElementById('goalNum');
+  const daysNum = document.getElementById('daysNum');
+  const progressFill = document.getElementById('progressFill');
+  const resetBtn = document.getElementById('resetBtn');
+  const badgesRow = document.getElementById('badgesRow');
+  const toast = document.getElementById('toast');
+  const celebration = document.getElementById('celebration');
+  const celebrationCard = document.getElementById('celebrationCard');
+  const celebrationText = document.getElementById('celebrationText');
+  const celebrationClose = document.getElementById('celebrationClose');
+  const amountChips = document.getElementById('amountChips');
+
+  const MILESTONES_SET = {7:'🌱', 15:'🌿', 23:'🍀', 30:'🏆'};
+  const MILESTONE_LIST = [
+    { day:7, icon:'🌱', label:'Semana 1' },
+    { day:15, icon:'🌿', label:'Mitad' },
+    { day:23, icon:'🍀', label:'Recta final' },
+    { day:30, icon:'🏆', label:'Completo' }
+  ];
+  const ENCOURAGEMENTS = [
+    '¡Bien ahorrado!', 'Un paso más cerca', 'Así se hace', 'Tu meta te lo agradece',
+    'Constancia que suma', '¡Eso es disciplina!', 'Sigue así', 'Un día más, una meta más cerca'
+  ];
+  const DECADE_BREAKS = { 0: 'El comienzo', 10: 'A mitad de camino', 20: 'La recta final' };
+
+  let mode = 'fixed';
+  let state = null;
+  let toastTimer = null;
+
+  function fmt(n){ return '$' + Math.round(n).toLocaleString('es-CL'); }
+
+  function showToast(text){
+    clearTimeout(toastTimer);
+    toast.textContent = text;
+    toast.classList.add('show');
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+  }
+
+  function renderBadges(doneCount){
+    badgesRow.innerHTML = '';
+    MILESTONE_LIST.forEach(m => {
+      const el = document.createElement('div');
+      el.className = 'badge' + (doneCount >= m.day ? ' earned' : '');
+      el.title = m.label;
+      el.innerHTML = '<span class="badge-icon">' + m.icon + '</span>';
+      badgesRow.appendChild(el);
+    });
+  }
+
+  function launchConfetti(){
+    const colors = ['#cfe0c3', '#a9c494', '#e2d5b8', '#d9cbab', '#3a2f22'];
+    for (let i=0;i<28;i++){
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random()*100 + '%';
+      piece.style.background = colors[Math.floor(Math.random()*colors.length)];
+      piece.style.animationDuration = (1.2 + Math.random()*1.2) + 's';
+      piece.style.animationDelay = (Math.random()*0.4) + 's';
+      celebrationCard.appendChild(piece);
+      setTimeout(() => piece.remove(), 3000);
+    }
+  }
+
+  function maybeCelebrate(doneCount){
+    if (doneCount === 30 && !state.celebrated){
+      state.celebrated = true;
+      saveState();
+      celebrationText.textContent = 'Cumpliste los 30 días y llegaste a tu meta de ' + fmt(state.goal) + '. Bien hecho.';
+      celebration.classList.remove('hidden');
+      launchConfetti();
+    }
+  }
+
+  function buildAmounts(goal, mode){
+    const amounts = [];
+    if (mode === 'fixed'){
+      const per = goal / 30;
+      for (let i=0;i<30;i++) amounts.push(per);
+    } else {
+      const weightSum = (30*31)/2;
+      for (let i=1;i<=30;i++) amounts.push(goal * (i/weightSum));
+    }
+    return amounts;
+  }
+
+  function loadState(){
+    try{ const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : null; }
+    catch(e){ return null; }
+  }
+  function saveState(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+  }
+
+  function handleCheck(idx){
+    const turningOn = !state.done[idx];
+    state.done[idx] = turningOn;
+    saveState();
+    render();
+    if (turningOn){
+      const freshBtn = trail.querySelector('[data-idx="' + idx + '"] .check-btn');
+      if (freshBtn){
+        freshBtn.classList.add('stamped');
+        setTimeout(() => freshBtn.classList.remove('stamped'), 450);
+      }
+      const doneCountNow = state.done.filter(Boolean).length;
+      if (doneCountNow === 30){ maybeCelebrate(doneCountNow); }
+      else { showToast(ENCOURAGEMENTS[Math.floor(Math.random()*ENCOURAGEMENTS.length)]); }
+    }
+  }
+
+  function render(){
+    if (!state){
+      setupCard.classList.remove('hidden');
+      appArea.classList.add('hidden');
+      return;
+    }
+    setupCard.classList.add('hidden');
+    appArea.classList.remove('hidden');
+
+    const saved = state.amounts.reduce((sum, amt, idx) => sum + (state.done[idx] ? amt : 0), 0);
+    const doneCount = state.done.filter(Boolean).length;
+    const pct = state.goal > 0 ? Math.min(100, Math.round((saved/state.goal)*100)) : 0;
+
+    savedNum.textContent = fmt(saved);
+    goalNum.textContent = fmt(state.goal);
+    daysNum.textContent = doneCount + '/30';
+    progressFill.style.width = pct + '%';
+    renderBadges(doneCount);
+
+    trail.innerHTML = '';
+    for (let idx = 0; idx < 30; idx++){
+      if (DECADE_BREAKS[idx]){
+        const marker = document.createElement('div');
+        marker.className = 'decade-marker';
+        marker.innerHTML = '<span>' + DECADE_BREAKS[idx] + '</span>';
+        trail.appendChild(marker);
+      }
+      const day = idx + 1;
+      const isMilestone = !!MILESTONES_SET[day];
+      const row = document.createElement('div');
+      row.className = 'trail-row ' + (idx % 2 === 0 ? 'left' : 'right') + (isMilestone ? ' milestone' : '');
+      row.setAttribute('data-idx', idx);
+
+      const stop = document.createElement('div');
+      stop.className = 'stop';
+
+      const cardEl = document.createElement('div');
+      cardEl.className = 'stop-card' + (state.done[idx] ? ' done' : '');
+      cardEl.innerHTML = '<span class="day-num">Día ' + day + (isMilestone ? ' ' + MILESTONES_SET[day] : '') + '</span><span class="day-amt">' + fmt(state.amounts[idx]) + '</span>';
+
+      const btn = document.createElement('button');
+      btn.className = 'check-btn' + (state.done[idx] ? ' is-done' : '');
+      btn.setAttribute('aria-label', state.done[idx] ? 'Desmarcar día ' + day : 'Marcar día ' + day + ' como ahorrado');
+      btn.textContent = state.done[idx] ? '✓' : '';
+      btn.addEventListener('click', () => handleCheck(idx));
+
+      stop.appendChild(cardEl);
+      stop.appendChild(btn);
+      row.appendChild(stop);
+      trail.appendChild(row);
+    }
+  }
+
+  amountChips.querySelectorAll('.chip-btn').forEach(chip => {
+    chip.addEventListener('click', () => {
+      goalInput.value = chip.dataset.amount;
+      goalInput.style.borderColor = '';
+      amountChips.querySelectorAll('.chip-btn').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+    });
+  });
+  goalInput.addEventListener('input', () => {
+    amountChips.querySelectorAll('.chip-btn').forEach(c => {
+      c.classList.toggle('selected', c.dataset.amount === goalInput.value);
+    });
+  });
+
+  modeFixed.addEventListener('click', () => {
+    mode = 'fixed';
+    modeFixed.setAttribute('aria-pressed','true');
+    modeIncrement.setAttribute('aria-pressed','false');
+  });
+  modeIncrement.addEventListener('click', () => {
+    mode = 'increment';
+    modeIncrement.setAttribute('aria-pressed','true');
+    modeFixed.setAttribute('aria-pressed','false');
+  });
+
+  startBtn.addEventListener('click', () => {
+    const goal = parseFloat(goalInput.value);
+    if (!goal || goal <= 0){
+      goalInput.focus();
+      goalInput.style.borderColor = '#b5543f';
+      return;
+    }
+    state = {
+      goal: goal, mode: mode, amounts: buildAmounts(goal, mode),
+      done: new Array(30).fill(false), celebrated: false
+    };
+    saveState();
+    render();
+  });
+
+  celebrationClose.addEventListener('click', () => celebration.classList.add('hidden'));
+
+  resetBtn.addEventListener('click', () => {
+    state = null;
+    try{ localStorage.removeItem(STORAGE_KEY); } catch(e){}
+    goalInput.value = '';
+    render();
+  });
+
+  const loaded = loadState();
+  if (loaded && loaded.goal && Array.isArray(loaded.amounts) && Array.isArray(loaded.done)){
+    state = loaded;
+  }
+  render();
+})();
+</script>
+</body>
+</html>
